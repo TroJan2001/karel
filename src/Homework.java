@@ -9,8 +9,7 @@ public class Homework extends SuperKarel {
     boolean putBeepers, zigzag, turn;
 
     private void calculateParameters(int dimension) {
-        maxNumOfChambers = maxChambers(dimension);
-        numOfLines = maxNumOfChambers - 1;
+        maxNumOfChambers = 4; numOfLines = 3;
         padding = (dimension + 1) % maxNumOfChambers;
         hop = (dimension - (padding + numOfLines)) / maxNumOfChambers;
     }
@@ -19,7 +18,7 @@ public class Homework extends SuperKarel {
         numOfVerticalMoves = 0;
         numOfHorizontalMoves = 0;
         numOfMoves = 0;
-        verticalDimension = 1000;
+        verticalDimension = 0;
         horizontalDimension = 0;
         padding = 0;
         zigzag = true;
@@ -28,12 +27,6 @@ public class Homework extends SuperKarel {
     private void moveOneStep() {
         move();
         numOfMoves++;
-    }
-
-    private int maxChambers(int dimension) {
-        if (dimension >= 7)
-            return 4;
-        return (dimension + 1) / 2;
     }
 
     private void turnKarel(boolean turn) {
@@ -165,7 +158,7 @@ public class Homework extends SuperKarel {
         horizontalDimension = numOfHorizontalMoves + 1;
         turnLeft();
         checkVerticalDimension();
-        if (verticalDimension <= 2) {
+        if (verticalDimension == 2 || verticalDimension == 1) {
             if (verticalDimension == 2 && horizontalDimension <= 6 && horizontalDimension != 1) {
                 zigzagHorizontal();
             } else {
