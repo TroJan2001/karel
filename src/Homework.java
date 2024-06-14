@@ -191,18 +191,14 @@ public class Homework extends SuperKarel {
         int hop = 1 + (verticalDimension - 4) / 2;
         moveForward(hop, false,true);
         moveForward(true, true);
-        turnAround();
-        moveVertical(verticalDimension / 2);
-        turnLeft();
-        moveForward(putBeepers, false);
         currentPathIsDone();
-        moveForward(hop, false,false);
-        moveForward(true,false);
-        turnAround();
-        moveForward(hop, false,false);
-        turnLeft();
-        moveOneStep();
         pickBeepers(hop-1);
+        moveOneStep();
+        turnRight();
+        moveForward(true,false);
+        currentPathIsDone();
+        moveForward(hop,false,false);
+        moveForward(hop+1,true,false);
     }
 
     private void divideBig() {
