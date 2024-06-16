@@ -8,13 +8,6 @@ public class Homework extends SuperKarel {
     private int maxNumOfChambers, numOfLines, padding, hop;
     boolean putBeepers, zigzag, turn;
 
-    private void calculateParameters(int dimension) {
-        maxNumOfChambers = maxChambers(dimension);
-        numOfLines = maxNumOfChambers - 1;
-        padding = (dimension + 1) % maxNumOfChambers;
-        hop = (dimension - (padding + numOfLines)) / maxNumOfChambers;
-    }
-
     private void initializeKarel() {
         numOfVerticalMoves = 0;
         numOfHorizontalMoves = 0;
@@ -30,58 +23,33 @@ public class Homework extends SuperKarel {
         numOfMoves++;
     }
 
-    private void turnKarel(boolean turn) {
-        if (!turn)
-            turnRight();
-        else
-            turnLeft();
-    }
-
-    private int maxChambers(int dimension) {
-        if (dimension >= 7)
-            return 4;
-        return (dimension + 1) / 2;
-    }
-
-    private void currentPathIsDone() {
-        turnLeft();
-        moveOneStep();
-        turnLeft();
-    }
-
-    private void otherPathIsDone() {
-        turnRight();
+    private void moveOneStepAndTurnRight() {
         moveOneStep();
         turnRight();
     }
 
-    private void addLines(boolean vertical) {
-        turn = !vertical;
-        for (int i = 0; i < numOfLines; i++) {
-            if (i == 0) {
-                moveForward(hop, false, vertical);
-            } else {
-                moveForward(hop + 1, false, vertical);
-            }
-            turnKarel(turn);
-            moveForward(true, false);
-            turnKarel(!turn);
-            turn = !turn;
+    private void moveForward(int moves, boolean beepers, boolean vertical) {
+        for (int i = 0; i < moves; i++) {
+            if (beepers && noBeepersPresent())
+                putBeeper();
+            if (frontIsClear()) {
+                move();
+                if (!vertical)
+                    numOfHorizontalMoves++;
+                else
+                    numOfVerticalMoves++;
+            } else
+                break;
         }
+        if (beepers && noBeepersPresent())
+            putBeeper();
     }
 
-    private void addPadding(boolean vertical) {
-        turn = !vertical;
-        for (int i = 0; i < padding; i++) {
-            if (i == 0) {
-                moveForward(hop, false, vertical);
-            }
-            moveForward(1, false, vertical);
-            turnKarel(turn);
-            moveForward(true, false);
-            turnKarel(!turn);
-            turn = !turn;
-        }
+    private void calculateParameters(int dimension) {
+        maxNumOfChambers = maxChambers(dimension);
+        numOfLines = maxNumOfChambers - 1;
+        padding = (dimension + 1) % maxNumOfChambers;
+        hop = (dimension - (padding + numOfLines)) / maxNumOfChambers;
     }
 
     private void checkVerticalDimension() {
@@ -93,33 +61,58 @@ public class Homework extends SuperKarel {
             verticalDimension = 1;
     }
 
-    private void moveForward(boolean beepers, boolean vertical) {
-        while (frontIsClear()) {
-            if (beepers && noBeepersPresent())
-                putBeeper();
-            move();
-            if (!vertical)
-                numOfHorizontalMoves++;
-            else
-                numOfVerticalMoves++;
-        }
-        if (beepers && noBeepersPresent())
-            putBeeper();
+    private int maxChambers(int dimension) {
+        if (dimension >= 7)
+            return 4;
+        return (dimension + 1) / 2;
     }
 
-    private void moveForward(int moves, boolean beepers, boolean vertical) {
+    private void turnKarel(boolean turn) {
+        if (!turn)
+            turnRight();
+        else
+            turnLeft();
+    }
 
-        for (int i = 0; i < moves; i++) {
-            if (beepers && noBeepersPresent())
-                putBeeper();
-            move();
-            if (!vertical)
-                numOfHorizontalMoves++;
-            else
-                numOfVerticalMoves++;
+    private void currentPathIsDone() {
+        turnLeft();
+        moveOneStep();
+        turnLeft();
+    }
+
+    private void otherPathIsDone() {
+        turnRight();
+        moveOneStepAndTurnRight();
+    }
+
+    private void turnAndPutBeepers() {
+        turnKarel(turn);
+        moveForward(Integer.MAX_VALUE, true, false);
+        turnKarel(!turn);
+        turn = !turn;
+    }
+
+    private void addLines(boolean vertical) {
+        turn = !vertical;
+        for (int i = 0; i < numOfLines; i++) {
+            if (i == 0) {
+                moveForward(hop, false, vertical);
+            } else {
+                moveForward(hop + 1, false, vertical);
+            }
+            turnAndPutBeepers();
         }
-        if (beepers && noBeepersPresent())
-            putBeeper();
+    }
+
+    private void addPadding(boolean vertical) {
+        turn = !vertical;
+        for (int i = 0; i < padding; i++) {
+            if (i == 0) {
+                moveForward(hop, false, vertical);
+            }
+            moveForward(1, false, vertical);
+            turnAndPutBeepers();
+        }
     }
 
     private void pickBeepers(int moves) {
@@ -133,9 +126,8 @@ public class Homework extends SuperKarel {
             pickBeeper();
     }
 
-
     private void divideMap() {
-        moveForward(false, false);
+        moveForward(Integer.MAX_VALUE, false, false);
         horizontalDimension = numOfHorizontalMoves + 1;
         turnLeft();
         checkVerticalDimension();
@@ -149,12 +141,11 @@ public class Homework extends SuperKarel {
             divideVertical();
         } else {
             turnAround();
-            moveOneStep();
-            turnRight();
+            moveOneStepAndTurnRight();
             moveForward(horizontalDimension / 2 - ((horizontalDimension + 1) % 2), false, false);
             turnRight();
             putBeepers = true;
-            moveForward(true, true);
+            moveForward(Integer.MAX_VALUE, true, true);
             verticalDimension = numOfVerticalMoves + 1;
             divideBigWorlds();
         }
@@ -164,12 +155,12 @@ public class Homework extends SuperKarel {
     private void drawFan() {
         int hop = 1 + (verticalDimension - 4) / 2;
         moveForward(hop, false, true);
-        moveForward(true, true);
+        moveForward(Integer.MAX_VALUE, true, true);
         currentPathIsDone();
         pickBeepers(hop - 1);
         moveOneStep();
         turnRight();
-        moveForward(true, false);
+        moveForward(Integer.MAX_VALUE, true, false);
         currentPathIsDone();
         moveForward(hop, false, false);
         moveForward(hop + 1, true, false);
@@ -182,26 +173,26 @@ public class Homework extends SuperKarel {
                 drawFan();
                 return;
             }
-            moveForward(putBeepers, true);
+            moveForward(Integer.MAX_VALUE, putBeepers, true);
         }
         putBeepers = true;
         turnAround();
-        moveForward((verticalDimension - 1) / 2, false, true);
+        moveForward((verticalDimension - (horizontalDimension + 1) % 2) / 2, false, true);
         turnKarel(horizontalDimension % 2 == 1);
-        moveForward(putBeepers, false);
+        moveForward(Integer.MAX_VALUE, putBeepers, false);
         if (verticalDimension % 2 == 0) {
             currentPathIsDone();
-            moveForward(putBeepers, false);
+            moveForward(Integer.MAX_VALUE, putBeepers, false);
             currentPathIsDone();
             moveForward(horizontalDimension / 2 - 1, putBeepers, false);
         } else {
             turnAround();
-            moveForward(putBeepers, false);
+            moveForward(Integer.MAX_VALUE, putBeepers, false);
         }
     }
 
     private void divideVertical() {
-        moveForward(false, true);
+        moveForward(Integer.MAX_VALUE, false, true);
         verticalDimension = numOfVerticalMoves + 2;
         if (verticalDimension <= 6 && horizontalDimension == 2) {
             zigzagVertical();
@@ -222,15 +213,12 @@ public class Homework extends SuperKarel {
 
     private void zigzagInit(int dimension) {
         padding = 0;
-        if (dimension == 2)
-            maxNumOfChambers = 2;
-        else if (dimension == 3)
-            maxNumOfChambers = 3;
+        if (dimension >= 2 && dimension <= 4)
+            maxNumOfChambers = dimension;
         else {
             maxNumOfChambers = 4;
             padding = (dimension % maxNumOfChambers) * 2;
         }
-
     }
 
     private void zigzagHorizontal() {
@@ -248,7 +236,7 @@ public class Homework extends SuperKarel {
             for (int i = 0; i < padding / 2; i++) {
                 zigzagHorizontalTurn();
                 zigzag = !zigzag;
-                moveForward(true, true);
+                moveForward(Integer.MAX_VALUE, true, true);
             }
         }
     }
@@ -279,7 +267,7 @@ public class Homework extends SuperKarel {
     private void zigzagVerticalTurn(boolean isPadding) {
         moveOneStep();
         turnKarel(!zigzag);
-        moveForward(isPadding, false);
+        moveForward(Integer.MAX_VALUE, isPadding, false);
         turnKarel(zigzag);
         zigzag = !zigzag;
     }
