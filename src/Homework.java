@@ -184,7 +184,7 @@ public class Homework extends SuperKarel {
             currentPathIsDone();
             moveForward(Integer.MAX_VALUE, putBeepers, false);
             currentPathIsDone();
-            moveForward(horizontalDimension / 2 - 1, putBeepers, false);
+            moveForward(horizontalDimension / 2 - ((horizontalDimension+1)%2) - 1, putBeepers, false);
         } else {
             turnAround();
             moveForward(Integer.MAX_VALUE, putBeepers, false);
