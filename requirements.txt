@@ -1,0 +1,6 @@
+java >= 1.8
+Add the following lines at your ide "edit configurations" section:
+1- "code=Homework" at program arguments field
+2- Homework at Main class field
+
+Look at requirements.jpg
